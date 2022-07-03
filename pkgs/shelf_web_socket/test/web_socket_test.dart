@@ -20,7 +20,7 @@ Map<String, String> get _handshakeHeaders => {
 
 void main() {
   test('can communicate with a dart:io WebSocket client', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, _) {
       webSocket.sink.add('hello!');
       webSocket.stream.first.then((request) {
         expect(request, equals('ping'));
@@ -30,8 +30,7 @@ void main() {
     }), 'localhost', 0);
 
     try {
-      final webSocket =
-          await WebSocket.connect('ws://localhost:${server.port}');
+      final webSocket = await WebSocket.connect('ws://localhost:${server.port}');
       var n = 0;
       await webSocket.listen((message) {
         if (n == 0) {
@@ -61,8 +60,7 @@ void main() {
         0);
 
     try {
-      final webSocket = await WebSocket.connect('ws://localhost:${server.port}',
-          protocols: ['one', 'two', 'three']);
+      final webSocket = await WebSocket.connect('ws://localhost:${server.port}', protocols: ['one', 'two', 'three']);
       expect(webSocket.protocol, equals('two'));
       return webSocket.close();
     } finally {
@@ -71,13 +69,12 @@ void main() {
   });
 
   test('handles protocol header without allowed protocols', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, _) {
       webSocket.sink.close();
     }), 'localhost', 0);
 
     try {
-      final webSocket = await WebSocket.connect('ws://localhost:${server.port}',
-          protocols: ['one', 'two', 'three']);
+      final webSocket = await WebSocket.connect('ws://localhost:${server.port}', protocols: ['one', 'two', 'three']);
       expect(webSocket.protocol, isNull);
       return webSocket.close();
     } finally {
@@ -92,8 +89,7 @@ void main() {
     }), 'localhost', 0);
 
     try {
-      final webSocket = await WebSocket.connect('ws://localhost:${server.port}',
-          protocols: ['one', 'two', 'three']);
+      final webSocket = await WebSocket.connect('ws://localhost:${server.port}', protocols: ['one', 'two', 'three']);
       expect(webSocket.protocol, isNull);
       return webSocket.close();
     } finally {
@@ -106,7 +102,7 @@ void main() {
     late Uri url;
     setUp(() async {
       server = await shelf_io.serve(
-          webSocketHandler((webSocket) {
+          webSocketHandler((webSocket, _) {
             webSocket.sink.close();
           }, allowedOrigins: ['pub.dartlang.org', 'GoOgLe.CoM']),
           'localhost',
@@ -147,22 +143,21 @@ void main() {
 
   // Regression test for issue 21894.
   test('allows a Connection header with multiple values', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, _) {
       webSocket.sink.close();
     }), 'localhost', 0);
 
     final url = Uri.http('localhost:${server.port}', '');
     final headers = _handshakeHeaders;
     headers['Connection'] = 'Other-Token, Upgrade';
-    expect(http.get(url, headers: headers).whenComplete(server.close),
-        hasStatus(101));
+    expect(http.get(url, headers: headers).whenComplete(server.close), hasStatus(101));
   });
 
   group('HTTP errors', () {
     late HttpServer server;
     late Uri url;
     setUp(() async {
-      server = await shelf_io.serve(webSocketHandler((_) {
+      server = await shelf_io.serve(webSocketHandler((_, __) {
         fail('should not create a WebSocket');
       }), 'localhost', 0);
       url = Uri.http('localhost:${server.port}', '');
