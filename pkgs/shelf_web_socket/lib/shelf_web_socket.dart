@@ -19,7 +19,7 @@ import 'src/web_socket_handler.dart';
 /// requests will be handled.
 ///
 /// The [onConnection] must take a [WebSocketChannel] as its first argument. It
-/// may also take a string, the [WebSocket subprotocol][], as its second
+/// also take a string, the [WebSocket subprotocol][], as its second
 /// argument. The subprotocol is determined by looking at the client's
 /// `Sec-WebSocket-Protocol` header and selecting the first entry that also
 /// appears in [protocols]. If no subprotocols are shared between the client and
@@ -39,15 +39,18 @@ import 'src/web_socket_handler.dart';
 /// If [pingInterval] is specified, it will get passed to the created
 /// channel instance, enabling round-trip disconnect detection.
 /// See [WebSocketChannel] for more details.
-Handler webSocketHandler(Function onConnection,
-    {Iterable<String>? protocols,
-    Iterable<String>? allowedOrigins,
-    Duration? pingInterval}) {
-  if (onConnection is! void Function(Null, Null)) {
-    final innerOnConnection = onConnection;
-    // ignore: inference_failure_on_untyped_parameter
-    onConnection = (webSocket, _) => innerOnConnection(webSocket);
-  }
+Handler webSocketHandler(
+  void Function(WebSocketChannel, String?) onConnection, {
+  Iterable<String>? protocols,
+  Iterable<String>? allowedOrigins,
+  Duration? pingInterval,
+}) {
+  ///added actual type annotation to the function
+  // if (onConnection is! void Function(Null, Null)) {
+  //   final innerOnConnection = onConnection;
+  //   // ignore: inference_failure_on_untyped_parameter
+  //   onConnection = (webSocket, _) => innerOnConnection(webSocket);
+  // }
 
   return WebSocketHandler(
     onConnection,
